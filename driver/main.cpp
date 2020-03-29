@@ -27,6 +27,7 @@ logvisor::Module LogModule("hecl::Driver");
 #include "ToolCook.hpp"
 #include "ToolPackage.hpp"
 #include "ToolImage.hpp"
+#include "ToolInstallAddon.hpp"
 #include "ToolHelp.hpp"
 
 /* Static reference to dataspec additions
@@ -250,6 +251,10 @@ static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, T
     return std::make_unique<ToolImage>(info);
   }
 #endif
+
+  if (toolNameLower == _SYS_STR("installaddon")) {
+    return std::make_unique<ToolInstallAddon>(info);
+  }
 
   if (toolNameLower == _SYS_STR("help")) {
     return std::make_unique<ToolHelp>(info);

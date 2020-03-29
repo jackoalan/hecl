@@ -32,13 +32,6 @@ public:
   using IndexTp = ssize_t;
 #endif
 private:
-  struct InvalidTp {};
-  using DivTp = std::conditional_t<
-      std::is_same<IndexTp, long long>::value, std::lldiv_t,
-      std::conditional_t<std::is_same<IndexTp, long>::value, std::ldiv_t,
-                         std::conditional_t<std::is_same<IndexTp, int>::value, std::div_t, InvalidTp>>>;
-  static_assert(!std::is_same<DivTp, InvalidTp>::value, "unsupported IndexTp for DivTp resolution");
-
   /** Size of single element, rounded up to 256-multiple */
   static constexpr IndexTp m_stride = ROUND_UP_256(sizeof(UniformStruct));
   static_assert(m_stride <= HECL_UBUFPOOL_ALLOCATION_BLOCK, "Stride too large for uniform pool");
@@ -53,7 +46,7 @@ private:
   hecl::llvm::BitVector m_freeBlocks;
 
   /** Efficient way to get bucket and block simultaneously */
-  DivTp getBucketDiv(IndexTp idx) const { return std::div(idx, m_countPerBucket); }
+  auto getBucketDiv(IndexTp idx) const { return hecl::div(idx, m_countPerBucket); }
 
   /** Factory pointer for building additional buffers */
   boo::IGraphicsDataFactory* m_factory = nullptr;
@@ -107,7 +100,7 @@ public:
     friend class UniformBufferPool;
     UniformBufferPool* m_pool = nullptr;
     IndexTp m_index = -1;
-    DivTp m_div;
+    decltype(hecl::div(IndexTp{}, IndexTp{})) m_div;
     Token(UniformBufferPool* pool) : m_pool(pool) {
       auto& freeSpaces = pool->m_freeBlocks;
       int idx = freeSpaces.find_first();

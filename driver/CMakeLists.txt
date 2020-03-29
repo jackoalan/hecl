@@ -23,7 +23,7 @@ if(APPLE)
   list(APPEND PLAT_LIBS ${CF_LIBRARY})
 endif()
 
-target_link_libraries(hecl PUBLIC ${DATA_SPEC_LIBS} hecl-full)
+target_link_libraries(hecl PUBLIC ${DATA_SPEC_LIBS} hecl-full tcmalloc)
 
 if(TARGET nod)
   target_link_libraries(hecl PUBLIC nod)

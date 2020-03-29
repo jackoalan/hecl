@@ -33,13 +33,6 @@ public:
   using IndexTp = ssize_t;
 #endif
 private:
-  struct InvalidTp {};
-  using DivTp = std::conditional_t<
-      std::is_same<IndexTp, long long>::value, std::lldiv_t,
-      std::conditional_t<std::is_same<IndexTp, long>::value, std::ldiv_t,
-                         std::conditional_t<std::is_same<IndexTp, int>::value, std::div_t, InvalidTp>>>;
-  static_assert(!std::is_same<DivTp, InvalidTp>::value, "unsupported IndexTp for DivTp resolution");
-
   /** Size of single element */
   static constexpr IndexTp m_stride = sizeof(VertStruct);
   static_assert(m_stride <= HECL_VBUFPOOL_ALLOCATION_BLOCK, "Stride too large for vertex pool");
@@ -54,7 +47,7 @@ private:
   hecl::llvm::BitVector m_freeElements;
 
   /** Efficient way to get bucket and element simultaneously */
-  DivTp getBucketDiv(IndexTp idx) const { return std::div(idx, m_countPerBucket); }
+  auto getBucketDiv(IndexTp idx) const { return hecl::div(idx, m_countPerBucket); }
 
   /** Factory pointer for building additional buffers */
   boo::IGraphicsDataFactory* m_factory = nullptr;
@@ -109,7 +102,7 @@ public:
     VertexBufferPool* m_pool = nullptr;
     IndexTp m_index = -1;
     IndexTp m_count = 0;
-    DivTp m_div;
+    decltype(hecl::div(IndexTp{}, IndexTp{})) m_div;
     Token(VertexBufferPool* pool, IndexTp count) : m_pool(pool), m_count(count) {
       assert(count <= pool->m_countPerBucket && "unable to fit in bucket");
       auto& freeSpaces = pool->m_freeElements;

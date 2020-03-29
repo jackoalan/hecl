@@ -818,4 +818,11 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type SaturatingMultiplyA
 /// Use this rather than HUGE_VALF; the latter causes warnings on MSVC.
 extern const float huge_valf;
 } // namespace llvm
+
+template <typename T>
+constexpr auto div(T a, T b) {
+  struct DivTp { T quot, rem; };
+  return DivTp{a / b, a % b};
+}
+
 } // namespace hecl
